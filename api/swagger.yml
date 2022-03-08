@@ -1,0 +1,566 @@
+openapi: "3.0.0"
+info:
+  title: API-Delilah-Resto
+  version: "1.2"
+  description: Api para el restaurante Delilah Resto
+
+servers:
+  - url: http://localhost:8080
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  # optional, for documentation purposes only
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Users Login
+      summary: Create user
+      description: Permite crear usuarios
+      responses:
+        "201":
+          description: Usuario creado
+        "400":
+          description: Email repetido
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {'message': Ya existe una cuenta con ese mail'}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: name
+                  example: Sophi
+                lastname:
+                  type: string
+                  description: Lastname
+                  example: Olivera
+                email:
+                  type: string
+                  description: Email
+                  example: sophia@nothing.com
+                phoneNumber:
+                  type: integer
+                  description: Phone number of the user
+                  example: 1234
+                password:
+                  type: string
+                  description: Password
+                  example: 1234
+                repeatPassword:
+                  type: string
+                  description: Confirm password
+                  example: 1234
+
+  /auth/login:
+    post:
+      tags:
+        - Users Login
+      summary: User login
+      description: Permite crear usuarios
+      responses:
+        "201":
+          description: User loged
+        "400":
+          description: Incorrect information
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {'message': Credentials error'}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email
+                  example: sophia@nothing.com
+                password:
+                  type: string
+                  description: Password
+                  example: 1234
+                  
+  /users/list:
+    get:
+      tags:
+        - Users administration
+      summary: Show all users
+      description: You must be an admin
+      responses:
+        "200":
+          description: Successfully request
+            sucess
+        "400":
+          description: Debes logearte Y tu token tiene que ser valido
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {'message': token invalido'}
+        "403":
+          description: Forbbiden
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {'message': Debes ser administrador para acceder'}   
+
+  /users/update/{id}:
+    put:
+      tags:
+        - Users administration
+      summary: Update user
+      description: Allows admins to update users
+      responses:
+          "200":
+            description: Update user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': User updated!}
+          "400":
+            description: Se requiere de estar logeado, ser administrador y el producto debe existir
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': El id del producto no existe'}
+      parameters:
+
+          - in: path
+            name: id
+            schema:
+              type: integer
+            required: true
+            description: Ingresar el id del producto a modificar
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: name
+                  example: Sophi
+                lastname:
+                  type: string
+                  description: Lastname
+                  example: Olivera
+                email:
+                  type: string
+                  description: Email
+                  example: sophia@nothing.com
+                phoneNumber:
+                  type: integer
+                  description: Phone number of the user
+                  example: 1234
+                password:
+                  type: string
+                  description: Password
+                  example: 1234
+                repeatPassword:
+                  type: string
+                  description: Confirm password
+                  example: 1234
+                addressBook:
+                       type: array
+                       items:
+                             type: object
+                             properties:
+                                   shippingAddress:
+                                     type: string
+                                     description: shippingAddress
+                                     example: address1
+                isAdmin:
+                  type: boolean
+                  description: If it is an admin
+                  example: false
+                isActive:
+                  type: boolean 
+                  description: If it is active
+                  example: false
+
+  /users/delete/{id}:
+    delete:
+      tags:
+        - Users administration
+      summary: Delete user
+      description: Allows administrators delete users
+      responses:
+          "200":
+            description: Delete user
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': Producto eliminado!}
+          "400":
+            description: Se requiere de estar logeado, ser administrador y el producto debe existir
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': El id del producto no existe'}
+      parameters:
+    
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Ingresar el id del usuario a modificar
+                    
+  /products:
+    get:
+      tags:
+        - Products 
+      summary: Ver todos los productos
+      description: Permite a los administradores ver el menu de los productos existentes
+      responses:
+          "200":
+            description: Muestra los productos
+          "400":
+            description: Debes logearte y tu token tiene que ser valido
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': token invalido'}
+        
+  /products/add:
+    post:
+      tags:
+        - Products 
+      summary: Agregar producto
+      description: Permite agregar productos. Requiere ser ADMIN
+      responses:
+          "200":
+            description: Agrega un producto
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': Producto agregado!}
+          "400":
+            description: Se requiere de estar logeado  y ser administrador
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': No estas logeado'}
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nombre del producto
+                  example: Choripan
+                price:
+                  type: integer
+                  description: Precio del producto
+                  example: 500
+                isVisible:
+                  type: boolean
+                  description: Se indica si el producto esta disponible
+                  example: true
+
+  /products/{idProduct}:
+    put:
+      tags:
+        - Products 
+      summary: Modificar producto
+      description: Permite a los administradores modificar productos
+      responses:
+          "200":
+            description: Modifica un producto
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': Producto modificado!}
+          "400":
+            description: Se requiere de estar logeado, ser administrador y el producto debe existir
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': El id del producto no existe'}
+      parameters:
+
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: Ingresar el id del producto a modificar
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nombre del producto
+                  example: Choripan
+                price:
+                  type: integer
+                  description: Precio del producto
+                  example: 500
+                isVisible:
+                  type: boolean
+                  description: Se indica si el producto esta disponible
+                  example: true
+   
+  /products/{idProduct}/:
+    delete:
+      tags:
+        - Products 
+      summary: Eliminar producto
+      description: Permite a los administradores eliminar productos
+      responses:
+          "200":
+            description: Elimina un producto
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': Producto eliminado!}
+          "400":
+            description: Se requiere de estar logeado, ser administrador y el producto debe existir
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': El id del producto no existe'}
+      parameters:
+    
+        - in: path
+          name: productid
+          schema:
+            type: integer
+          required: true
+          description: Ingresar el id del producto a modificar          
+
+ 
+  /payments:
+    get:
+      tags:
+        - Payment Methods 
+      summary: Ver metodos de pago
+      description: Permite a los usuarios ver los metodos de pago
+      
+      responses:
+          "200":
+            description: Muestra los metodos de pago
+          "400":
+            description: Debes logearte y tu token tiene que ser valido
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': token invalido'}
+        
+  /payments/:
+    post:
+      tags:
+        - Payment Methods 
+      summary: Crear metodo de pago
+      description: Permite a los administradores crear metodos de pago
+  
+      responses:
+          "200":
+            description: Metodo de pago creado
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': Metodo de pago creado!}
+          "400":
+            description: Debes logearte, tu token tiene que ser valido y debes ser admininstrador
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': token invalido'}
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                method:
+                  type: string
+                  description: Nombre del metodo de pago
+                  example: Bitcoin
+
+  /payments/{idPayments}:
+    put:
+      tags:
+        - Payment Methods 
+      summary: Editar metodo de pago
+      description: Permite a los administradores editar metodos de pago
+      
+      responses:
+          "200":
+            description: Modifica los metodos de pago
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': Metodo de pago creado!}
+          "400":
+            description: Debes logearte y tu token tiene que ser valido y el id del metodo de pago debe existir
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': token invalido'}
+      parameters:
+          
+          - in: path
+            name: idPayments
+            schema:
+              type: string
+            required: true
+            description: Ingresar el ID del metodo de pago
+
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                method:
+                  type: string
+                  description: Nombre del metodo de pago
+                  example: MercadoPago
+
+  /payments/{idPaymets}:
+    delete:
+      tags:
+        - Payment Methods 
+      summary: Eliminar metodo de pago
+      description: Permite a los administradores eliminar metodos de pago
+      parameters:
+    
+        - in: path
+          name: idPayments
+          schema:
+            type: string
+          required: true
+          description: Ingresar el ID del metodo de pago
+      responses:
+          "200":
+            description: Modifica los metodos de pago
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'message': Metodo de pago eliminado!}
+          "400":
+            description: Debes logearte y tu token tiene que ser valido y el id del metodo de pago debe existir
+            content:
+              application/json:
+                schema:
+                  type: object
+                  example: {'error': No eres administrador para acceder'}
+
+  /addressBook:
+    get:
+      tags:
+        - "Direcciones/Address"
+      summary: Muestra todas las direcciones
+      description: Muestra todoas las direcciones del usuario
+      responses:
+        "200":
+          description: Muestra las direcciones del usuario en cuestion
+            sucess
+        "400":
+          description: Debes logearte Y tu token tiene que ser valido
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {'message': token invalido'}
+  
+    post:
+      tags:
+        - "Direcciones/Address"
+      summary: Crear Direccion
+      description: Permite que el usuario agregue una direccion
+      responses:
+        "200":
+          description: Agregue la direccion satisfactoriamente
+            sucess
+        "400":
+          description: Debes logearte Y tu token tiene que ser valido
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {'message': token invalido'}
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                destination:
+                  type: string
+                  example: Avenida 032
+  
+  /addressBook/{id}:
+    delete:
+      tags:
+        - "Direcciones/Address"
+      summary: Eliminar las direcciones
+      description: Permite eliminar las direcciones de los usuarios
+      responses:
+        "200":
+          description: Direccion eliminar correctamente
+            sucess
+        "400":
+          description: Debes logearte, tu token tiene que ser valido y el id de la direccion debe pertenecerle al usuario en cuestion
+          content:
+            application/json:
+              schema:
+                type: object
+                example: {'message': token invalido'}
+      parameters:
+
+        - in: path
+          name: addressId
+          schema:
+            type: integer
+          required: true
+          description: ingresar el  ID de la direccion a eliminar
+          
+          
